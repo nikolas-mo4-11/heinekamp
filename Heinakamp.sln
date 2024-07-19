@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp", "Heinekamp\Heinekamp.csproj", "{04F1754A-0226-4932-9A71-3B2DBCD1AC11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp.Domain", "Heinekamp.Domain\Heinekamp.Domain.csproj", "{23E01092-EA86-4483-90AB-59BB1131D988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp.MsDb", "Heinekamp.MsDb\Heinekamp.MsDb.csproj", "{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04F1754A-0226-4932-9A71-3B2DBCD1AC11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04F1754A-0226-4932-9A71-3B2DBCD1AC11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04F1754A-0226-4932-9A71-3B2DBCD1AC11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04F1754A-0226-4932-9A71-3B2DBCD1AC11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23E01092-EA86-4483-90AB-59BB1131D988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23E01092-EA86-4483-90AB-59BB1131D988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23E01092-EA86-4483-90AB-59BB1131D988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23E01092-EA86-4483-90AB-59BB1131D988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
