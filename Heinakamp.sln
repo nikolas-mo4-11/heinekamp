@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp", "Heinekamp\Hein
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp.Domain", "Heinekamp.Domain\Heinekamp.Domain.csproj", "{23E01092-EA86-4483-90AB-59BB1131D988}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp.MsDb", "Heinekamp.MsDb\Heinekamp.MsDb.csproj", "{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heinekamp.PgDb", "Heinekamp.PgDb\Heinekamp.PgDb.csproj", "{0B99E6F9-4C3F-4B02-BB6D-BE88681E28C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

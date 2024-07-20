@@ -1,7 +1,6 @@
-﻿using Heinekamp.MsDb.Context;
-using Heinekamp.MsDb.Context.Interfaces;
-using Heinekamp.MsDb.Repository.Interfaces;
-using Heinekamp.Services.Classes;
+﻿using Heinekamp.PgDb.Context;
+using Heinekamp.PgDb.Repository.Interfaces;
+using Heinekamp.Services;
 using Heinekamp.Services.Interfaces;
 
 namespace Heinekamp;
@@ -24,7 +23,7 @@ public class Startup(IConfiguration configuration)
         {
             app.UseDeveloperExceptionPage();
         }
-
+//Server=localhost;Database=Heinekamp;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=false;
         app.UseStaticFiles();
         app.UseMvc();
         
@@ -37,8 +36,8 @@ public class Startup(IConfiguration configuration)
     
     private void ConfigureRepositories(IServiceCollection services)
     {
-        services.AddSingleton<IRepositoryContextFactory, RepositoryContextFactory>(provider =>
-            new RepositoryContextFactory(Configuration.GetConnectionString("MsDbConnectionString")));
+        //services.AddSingleton<IRepositoryContextFactory, RepositoryContextFactory>(provider =>
+            //new RepositoryContextFactory(Configuration.GetConnectionString("PgDbConnectionString")));
         
         services.AddSingleton<IDocumentRepository>();
     }

@@ -15,4 +15,13 @@ public class DocumentApiController(IDocumentService documentService) : Controlle
         
         return await documentService.GetPageOfDocuments(pageIndex);
     }
+    
+    [Route("create")]
+    [HttpPost]
+    public async Task CreateDocument(string name)
+    {
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException("Empty document name");
+        
+        await documentService.Create(name);
+    }
 }
