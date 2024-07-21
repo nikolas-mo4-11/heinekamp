@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.7" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-preview.3.24172.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0-preview.3.24172.4">
         <PrivateAssets>all</PrivateAssets>
@@ -25,6 +26,13 @@
 
     <ItemGroup>
       <Folder Include="Dtos\" />
+      <Folder Include="wwwroot\documentStorage\" />
+      <Folder Include="wwwroot\previewStorage\" />
+      <Folder Include="wwwroot\typeIcons\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\assets\drheinekamp_logo.svg" />
     </ItemGroup>
 
 </Project>
