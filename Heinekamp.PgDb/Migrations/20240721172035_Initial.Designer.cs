@@ -3,6 +3,7 @@ using System;
 using Heinekamp.PgDb.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Heinekamp.PgDb.Migrations
 {
     [DbContext(typeof(PgContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240721172035_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,6 +100,80 @@ namespace Heinekamp.PgDb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FileTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Extension = "",
+                            IconFileName = "empty.svg"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Extension = ".doc",
+                            IconFileName = "doc.svg"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Extension = ".docx",
+                            IconFileName = "doc.svg"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Extension = ".gif",
+                            IconFileName = "gif.svg"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Extension = ".jpg",
+                            IconFileName = "jpg.svg"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Extension = ".pdf",
+                            IconFileName = "pdf.svg"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Extension = ".png",
+                            IconFileName = "png.svg"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Extension = ".svg",
+                            IconFileName = "svg.svg"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Extension = ".txt",
+                            IconFileName = "txt.svg"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Extension = ".xls",
+                            IconFileName = "xls.svg"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Extension = ".xlsx",
+                            IconFileName = "xls.svg"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Extension = ".jpeg",
+                            IconFileName = "jpg.svg"
+                        });
                 });
 
             modelBuilder.Entity("Heinekamp.Domain.Models.Document", b =>
@@ -104,7 +181,7 @@ namespace Heinekamp.PgDb.Migrations
                     b.HasOne("Heinekamp.Domain.Models.FileType", "FileType")
                         .WithMany()
                         .HasForeignKey("FileTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("FileType");
@@ -115,7 +192,7 @@ namespace Heinekamp.PgDb.Migrations
                     b.HasOne("Heinekamp.Domain.Models.Document", "Document")
                         .WithMany()
                         .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Document");

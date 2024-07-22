@@ -1,0 +1,14 @@
+﻿.errors {
+    background-color: red;
+    border-radius: 8px;
+    padding: 16px;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.errors_text {
+    color: white;
+    font-weight: bold;
+    white-space: pre-wrap;
+}

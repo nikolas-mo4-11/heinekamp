@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Heinekamp.PgDb.Migrations
 {
     /// <inheritdoc />
@@ -45,7 +47,7 @@ namespace Heinekamp.PgDb.Migrations
                         column: x => x.FileTypeId,
                         principalTable: "FileTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -67,7 +69,31 @@ namespace Heinekamp.PgDb.Migrations
                         column: x => x.DocumentId,
                         principalTable: "Documents",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                });
+            
+            migrationBuilder.DeleteData(
+                table: "FileTypes",
+                keyColumn: "Id",
+                keyValues: new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
+
+            migrationBuilder.InsertData(
+                table: "FileTypes",
+                columns: new[] { "Id", "Extension", "IconFileName" },
+                values: new object[,]
+                {
+                    { 1, "", "empty.svg" },
+                    { 2, ".doc", "doc.svg" },
+                    { 3, ".docx", "doc.svg" },
+                    { 4, ".gif", "gif.svg" },
+                    { 5, ".jpg", "jpg.svg" },
+                    { 6, ".pdf", "pdf.svg" },
+                    { 7, ".png", "png.svg" },
+                    { 8, ".svg", "svg.svg" },
+                    { 9, ".txt", "txt.svg" },
+                    { 10, ".xls", "xls.svg" },
+                    { 11, ".xlsx", "xls.svg" },
+                    { 12, ".jpeg", "jpg.svg" }
                 });
 
             migrationBuilder.CreateIndex(

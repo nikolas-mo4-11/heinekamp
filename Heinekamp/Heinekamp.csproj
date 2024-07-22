@@ -12,6 +12,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="FreeSpire.Doc" Version="12.2.0" />
+      <PackageReference Include="FreeSpire.PDF" Version="10.2.0" />
+      <PackageReference Include="FreeSpire.XLS" Version="14.2.0" />
+      <PackageReference Include="iTextSharp" Version="5.5.13.4" />
       <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.7" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-preview.3.24172.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0-preview.3.24172.4">
@@ -22,13 +26,8 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Dtos\" />
-      <Folder Include="wwwroot\documentStorage\" />
-      <Folder Include="wwwroot\previewStorage\" />
-      <Folder Include="wwwroot\typeIcons\" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+      <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
     </ItemGroup>
 
     <ItemGroup>

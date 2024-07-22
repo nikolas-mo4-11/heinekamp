@@ -1,15 +1,14 @@
-﻿using Heinekamp.Domain.AppConfig;
-using Heinekamp.Domain.Models;
+﻿using Heinekamp.Domain.Models;
+using Heinekamp.Dtos;
 using Heinekamp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Heinekamp.Controllers;
 
 [Route("api/[controller]")]
-public class DocumentController(IDocumentService documentService, IWebHostEnvironment env, IOptions<AppSettings> appSettings) : Controller
+public class DocumentController(IDocumentService documentService) : Controller
 {
-    [Route("page")]
+    [Route("page/{pageIndex}")]
     [HttpGet]
     public async Task<Page<Document>> GetPageOfDocuments(int pageIndex)
     {
@@ -18,37 +17,44 @@ public class DocumentController(IDocumentService documentService, IWebHostEnviro
         return await documentService.GetPageOfDocuments(pageIndex);
     }
     
+    [Route("fileTypes")]
+    [HttpGet]
+    public async Task<IReadOnlyCollection<FileType>> GetFileTypes()
+    {
+        return await documentService.GetAvailableFileTypes();
+    }
+    
     [Route("create")]
     [HttpPost]
     public async Task<ActionResult> CreateDocuments()
     {
         var files = Request.Form.Files;
-
         if (files.Count == 0)
-        {
             return BadRequest("No files uploaded");
-        }
 
-        var uploads = Path.Combine(env.WebRootPath, appSettings.Value.DocumentStorageDir);
-        if (!Directory.Exists(uploads))
-        {
-            Directory.CreateDirectory(uploads);
-        }
+        var uploadedFileNames =   await documentService.CreateDocuments(files);
+        return Ok(new {fileNames = uploadedFileNames });
+    }
+    
+    [Route("update")]
+    [HttpPost]
+    public async Task<ActionResult> UpdateDocument([FromBody] UpdateDocumentRequestDto request)
+    {
+        if (request.Id <= 0)
+            return BadRequest("Document id is zero or negative");
 
-        var fileNames = new List<string>();
+        await documentService.UpdateDocument(request);
+        return Ok();
+    }
+    
+    [Route("delete/{id}")]
+    [HttpPost]
+    public async Task<ActionResult> DeleteDocument(long id)
+    {
+        if (id <= 0)
+            return BadRequest("Document id is zero or negative");
 
-        foreach (var file in files)
-        {
-            var filePath = Path.Combine(uploads, file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            fileNames.Add(file.FileName);
-        }
-
-        return Ok(new { fileNames });
+        await documentService.DeleteDocument(id);
+        return Ok();
     }
 }

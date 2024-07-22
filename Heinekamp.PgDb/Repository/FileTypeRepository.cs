@@ -16,24 +16,12 @@ public class FileTypeRepository(IDesignTimeDbContextFactory<PgContext> contextFa
         return await context.FileTypes.AsQueryable().FirstOrDefaultAsync(t => t.Extension == extension) 
                ?? throw new ArgumentNullException(nameof(FileType), "Extension isn't being supported yet");
     }
-    
-    public async Task<Page<Document>> GetPageOfDocuments(int currentPage, int pageSize)
+
+    public async Task<IReadOnlyCollection<FileType>> GetAvailableFileTypes()
     {
-        var result = new Page<Document> { CurrentPage = currentPage, PageSize = pageSize };
-
         await using var context = ContextFactory.CreateDbContext(null);
-        var query = context.Documents.AsQueryable();
-        
-        result.TotalPagesCount = await query.CountAsync();
-            
-        query = query
-            .Include(d => d.FileType)
-            .OrderByDescending(d => d.CreatedDate)
-            .Skip(currentPage * pageSize)
-            .Take(pageSize);
-            
-        result.Records = await query.ToListAsync();
 
-        return result;
+        var temp = await context.FileTypes.AsQueryable().ToListAsync();
+        return temp; //todo
     }
 }

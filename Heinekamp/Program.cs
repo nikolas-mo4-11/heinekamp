@@ -1,8 +1,10 @@
 using Heinekamp;
-using Microsoft.AspNetCore;
 
-var host = WebHost.CreateDefaultBuilder(args)
-    .UseStartup<Startup>()
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureWebHostDefaults(webBuilder =>
+    {
+        webBuilder.UseStartup<Startup>();
+    })
     .Build();
 
 host.Run();

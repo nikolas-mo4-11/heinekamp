@@ -22,7 +22,7 @@ const PreviewPopup = ({ document, onClose, isPreview, onDelete, onUpdate }) => {
     return (
         <div className="preview-popup">
             <div className="preview-header">
-                <img src={`${typeIconDir}/${document.fileType.iconFileName}`} alt="file type" />
+                <img className='icon' src={`${typeIconDir}/${document.fileType.iconFileName}`} alt="file type" />
                 <button onClick={onClose}>X</button>
             </div>
             <div className="preview-body">

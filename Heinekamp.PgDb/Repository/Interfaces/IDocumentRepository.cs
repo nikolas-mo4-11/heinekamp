@@ -1,9 +1,13 @@
 ﻿using Heinekamp.Domain.Models;
+using Heinekamp.Dtos;
 
 namespace Heinekamp.PgDb.Repository.Interfaces;
 
 public interface IDocumentRepository
 {
     Task<Page<Document>> GetPageOfDocuments(int currentPage, int pageSize);
-    Task Create(string name, FileType type);
+    Task<Document> Create(string name, FileType type);
+    Task UpdateDocument(UpdateDocumentRequestDto request);
+    Task Delete(long id);
+    Document GetById(long id);
 }

@@ -1,7 +1,8 @@
 ﻿import React, {useEffect, useState} from 'react';
 import './UploadPopup.css';
+import {getFileTypesApi, postUploadDocsApi} from "../DocumentApi";
 
-const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
+const UploadPopup = ({ onClose, onUpload, onPreviewClick, onErrors }) => {
     const [files, setFiles] = useState([]);
     const [fileTypes, setFileTypes] = useState([]);
     const typeIconDir = window.initialState.typeIconDir || '';
@@ -10,9 +11,13 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
         fetchFileTypes();
     }, []);
 
-    const fetchFileTypes = async () => {
-        const response = getFileTypesApi();
-        setFileTypes(response.data.records);
+    const fetchFileTypes = () => {
+        getFileTypesApi()
+            .then(response => response.json())
+            .then(response => {
+                setFileTypes(response);
+            })
+            .catch(error => onErrors([error]));
     };
 
     const handleFileSelect = (event) => {
@@ -20,20 +25,23 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
     };
 
     const handleUpload = async () => {
+        if (files.length === 0){
+            onUpload();
+            return;
+        }
+        
         const formData = new FormData();
         files.forEach(file => formData.append('files', file));
-
-        try {
-            const response = postUploadDocsApi(formData);
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            
-            onUpload();
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        
+        await postUploadDocsApi(formData)
+            .then(response => {
+                if (!response.ok) {
+                    onErrors(['Network response was not ok']);
+                }
+                
+                onUpload();
+            })
+            .catch(error => onErrors(error));
     };
     
     const getIconFileName = (extension) => {
@@ -44,6 +52,10 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
         return `${typeIconDir}/${matchedType.iconFileName}`;
     }
 
+    const getFileExtension = (filename) => {
+        return `.${filename.split('.').pop()}`; 
+    };
+
     return (
         <div className="upload-popup">
             <div className="upload-header">
@@ -51,7 +63,6 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
                 <button onClick={onClose}>X</button>
             </div>
             <div className="upload-body">
-                <input type="file" multiple accept=".pdf" onChange={handleFileSelect} />
                 <table>
                     <thead>
                     <tr>
@@ -64,10 +75,11 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
                     {files.map((file, index) => (
                         <tr key={index}>
                             <td>
-                                <img src={getIconFileName(file.type)} alt="file type"/>
+                                <img className='icon' src={getIconFileName(getFileExtension(file.name))}
+                                     alt="file type"/>
                             </td>
                             <td>
-                                <input type="text" defaultValue={file.name.replace(/\.[^/.]+$/, "_")}/>
+                                <input type="text" defaultValue={file.name.replace(/\.[^/.]+$/, "")}/>
                             </td>
                             <td>
                                 <button>Preview</button>
@@ -76,6 +88,7 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick }) => {
                     ))}
                     </tbody>
                 </table>
+                <input type="file" multiple accept=".doc, .docx, .pdf, image/png, image/jpeg, image/jpg, .xls, .xlsx, .txt, .gif" onChange={handleFileSelect}/>
             </div>
             <div className="upload-footer">
                 <button onClick={handleUpload}>Upload</button>

@@ -3,6 +3,7 @@
 public class DownloadLink
 {
     public long Id { get; set; }
+    public long DocumentId { get; set; }
     public Document Document { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime ExpirationDate { get; set; }

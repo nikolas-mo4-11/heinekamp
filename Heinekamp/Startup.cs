@@ -4,7 +4,6 @@ using Heinekamp.PgDb.Repository;
 using Heinekamp.PgDb.Repository.Interfaces;
 using Heinekamp.Services;
 using Heinekamp.Services.Interfaces;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -57,15 +56,18 @@ public class Startup(IConfiguration configuration)
 
             if (env.IsDevelopment())
             {
-                //spa.UseProxyToSpaDevelopmentServer("http://localhost:9000");
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:9000");
                 // Либо используйте следующий метод, если предпочитаете Webpack Dev Middleware
-                spa.UseReactDevelopmentServer(npmScript: "start");
+                //spa.UseReactDevelopmentServer(npmScript: "start");
             }
         });
         
-        // Применение миграций
+        // Применение миграций и инициализация бд
         using (var context = contextFactory.CreateDbContext(null))
+        {
             context.Database.Migrate();
+            //DbInitializer.Initialize(context); // only on init
+        }
 
     }
     
