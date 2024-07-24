@@ -10,7 +10,7 @@ namespace Heinekamp.PgDb.Repository;
 public class DocumentRepository(IDesignTimeDbContextFactory<PgContext> contextFactory)
     : RepositoryBase(contextFactory), IDocumentRepository
 {
-    public async Task<List<Document>> ListAllDocuments()
+    public async Task<List<Document>> ListAllDocumentsAsync()
     {
         await using var context = ContextFactory.CreateDbContext(null);
         return await context.Documents.AsQueryable()
@@ -19,7 +19,7 @@ public class DocumentRepository(IDesignTimeDbContextFactory<PgContext> contextFa
             .ToListAsync();
     }
 
-    public async Task<Document> Create(string name, FileType type)
+    public async Task<Document> CreateAsync(string name, FileType type)
     {
         await using var context = ContextFactory.CreateDbContext(null);
         var newDocument = new Document
@@ -36,7 +36,7 @@ public class DocumentRepository(IDesignTimeDbContextFactory<PgContext> contextFa
         return newDocument;
     }
 
-    public async Task UpdateDocument(UpdateDocumentRequestDto request)
+    public async Task UpdateDocumentAsync(UpdateDocumentRequestDto request)
     {
         await using var context = ContextFactory.CreateDbContext(null);
 
@@ -50,7 +50,7 @@ public class DocumentRepository(IDesignTimeDbContextFactory<PgContext> contextFa
         await context.SaveChangesAsync();
     }
 
-    public async Task Delete(long id)
+    public async Task DeleteAsync(long id)
     {
         await using var context = ContextFactory.CreateDbContext(null);
 
@@ -63,14 +63,14 @@ public class DocumentRepository(IDesignTimeDbContextFactory<PgContext> contextFa
         await context.SaveChangesAsync();
     }
 
-    public Document GetById(long id)
+    public async Task<Document> GetByIdAsync(long id)
     {
-        using var context = ContextFactory.CreateDbContext(null);
+        await using var context = ContextFactory.CreateDbContext(null);
 
-        return context.Documents
+        return await context.Documents
                    .AsQueryable()
                    .Include(d => d.FileType)
-                   .FirstOrDefault(x => x.Id == id)
+                   .FirstOrDefaultAsync(x => x.Id == id)
                ?? throw new ArgumentException($"Document with id = {id} not found");
     }
 }

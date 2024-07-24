@@ -12,14 +12,14 @@ public class DocumentController(IDocumentService documentService) : Controller
     [HttpGet]
     public async Task<List<Document>> ListAllDocuments()
     {
-        return await documentService.ListAllDocuments();
+        return await documentService.ListAllDocumentsAsync();
     }
     
     [Route("fileTypes")]
     [HttpGet]
     public async Task<IReadOnlyCollection<FileType>> GetFileTypes()
     {
-        return await documentService.GetAvailableFileTypes();
+        return await documentService.GetAvailableFileTypesAsync();
     }
     
     [Route("create")]
@@ -30,7 +30,7 @@ public class DocumentController(IDocumentService documentService) : Controller
         if (files.Count == 0)
             return BadRequest("No files uploaded");
 
-        var uploadedFileNames =   await documentService.CreateDocuments(files);
+        var uploadedFileNames = await documentService.CreateDocumentsAsync(files);
         return Ok(new {fileNames = uploadedFileNames });
     }
     
@@ -41,7 +41,7 @@ public class DocumentController(IDocumentService documentService) : Controller
         if (request.Id <= 0)
             return BadRequest("Document id is zero or negative");
 
-        await documentService.UpdateDocument(request);
+        await documentService.UpdateDocumentAsync(request);
         return Ok();
     }
     
@@ -52,7 +52,7 @@ public class DocumentController(IDocumentService documentService) : Controller
         if (id <= 0)
             return BadRequest("Document id is zero or negative");
 
-        await documentService.DeleteDocument(id);
+        await documentService.DeleteDocumentAsync(id);
         return Ok();
     }
 }

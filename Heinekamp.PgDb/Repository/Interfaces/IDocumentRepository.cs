@@ -5,9 +5,9 @@ namespace Heinekamp.PgDb.Repository.Interfaces;
 
 public interface IDocumentRepository
 {
-    Task<List<Document>> ListAllDocuments();
-    Task<Document> Create(string name, FileType type);
-    Task UpdateDocument(UpdateDocumentRequestDto request);
-    Task Delete(long id);
-    Document GetById(long id);
+    Task<List<Document>> ListAllDocumentsAsync();
+    Task<Document> CreateAsync(string name, FileType type);
+    Task UpdateDocumentAsync(UpdateDocumentRequestDto request);
+    Task DeleteAsync(long id);
+    Task<Document> GetByIdAsync(long id);
 }

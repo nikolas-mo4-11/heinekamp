@@ -15,55 +15,54 @@ public class DocumentService(
     IFileTypeRepository fileTypeRepository
 ) : IDocumentService
 {
-    public async Task<List<Document>> ListAllDocuments()
+    public async Task<List<Document>> ListAllDocumentsAsync()
     {
-        return await documentRepository.ListAllDocuments();
+        return await documentRepository.ListAllDocumentsAsync();
     }
 
-    public async Task<IReadOnlyCollection<string>> CreateDocuments(IFormFileCollection files)
+    public async Task<IReadOnlyCollection<string>> CreateDocumentsAsync(IFormFileCollection files)
     {
-        var uploadedFileNames = new List<string>();
-
-        foreach (var file in files)
-        {
-            var fileName = file.FileName;
-
-            // create in db
-            var fileType = await fileTypeRepository.GetByExtension(Path.GetExtension(fileName));
-            var documentEntity = await documentRepository.Create(Path.GetFileNameWithoutExtension(fileName), fileType);
-
-            // upload to storage
-            var filePath = GetFilePathByDocumentId(documentEntity.Id, fileType.Extension);
-            
-            await using (var stream = new FileStream(filePath, FileMode.Create))
-                await file.CopyToAsync(stream);
-            
-            // create preview image
-            var temp = GetPreviewPathByDocumentId(documentEntity.Id); //todo
-            var temp1 = PreviewGeneratorResolver.GetGenerator(fileType.Extension);
-            temp1.CreatePreview(filePath, GetPreviewPathByDocumentId(documentEntity.Id));
-
-            uploadedFileNames.Add(file.FileName);
-        }
-
-        return uploadedFileNames;
+        var tasks = files.Select(CreateSingleDocumentAsync).ToList();
+        return await Task.WhenAll(tasks);
     }
 
-    public async Task<IReadOnlyCollection<FileType>> GetAvailableFileTypes()
+    private async Task<string> CreateSingleDocumentAsync(IFormFile file)
+    {
+        var fileName = file.FileName;
+
+        // create in db
+        var fileType = await fileTypeRepository.GetByExtension(Path.GetExtension(fileName));
+        var documentEntity = await documentRepository.CreateAsync(Path.GetFileNameWithoutExtension(fileName), fileType);
+
+        // upload to storage
+        var filePath = GetFilePathByDocumentId(documentEntity.Id, fileType.Extension);
+            
+        await using (var stream = new FileStream(filePath, FileMode.Create))
+            await file.CopyToAsync(stream);
+            
+        // create preview image
+        var temp = GetPreviewPathByDocumentId(documentEntity.Id); //todo
+        var temp1 = PreviewGeneratorResolver.GetGenerator(fileType.Extension);
+        temp1.CreatePreview(filePath, GetPreviewPathByDocumentId(documentEntity.Id));
+
+        return file.FileName;
+    }
+
+    public async Task<IReadOnlyCollection<FileType>> GetAvailableFileTypesAsync()
     {
         return await fileTypeRepository.GetAvailableFileTypes();
     }
 
-    public Task UpdateDocument(UpdateDocumentRequestDto request)
+    public Task UpdateDocumentAsync(UpdateDocumentRequestDto request)
     {
-        return documentRepository.UpdateDocument(request);
+        return documentRepository.UpdateDocumentAsync(request);
     }
 
-    public async Task DeleteDocument(long id)
+    public async Task DeleteDocumentAsync(long id)
     {
         // delete from db
-        var extension = documentRepository.GetById(id).FileType.Extension;
-        await documentRepository.Delete(id);
+        var extension = (await documentRepository.GetByIdAsync(id)).FileType.Extension;
+        await documentRepository.DeleteAsync(id);
 
         // delete from storage
         var filePath = GetFilePathByDocumentId(id, extension);

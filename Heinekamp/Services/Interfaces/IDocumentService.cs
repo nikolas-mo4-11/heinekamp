@@ -5,9 +5,9 @@ namespace Heinekamp.Services.Interfaces;
 
 public interface IDocumentService
 {
-    Task<List<Document>> ListAllDocuments();
-    Task<IReadOnlyCollection<string>> CreateDocuments(IFormFileCollection files);
-    Task<IReadOnlyCollection<FileType>> GetAvailableFileTypes();
-    Task UpdateDocument(UpdateDocumentRequestDto request);
-    Task DeleteDocument(long id);
+    Task<List<Document>> ListAllDocumentsAsync();
+    Task<IReadOnlyCollection<string>> CreateDocumentsAsync(IFormFileCollection files);
+    Task<IReadOnlyCollection<FileType>> GetAvailableFileTypesAsync();
+    Task UpdateDocumentAsync(UpdateDocumentRequestDto request);
+    Task DeleteDocumentAsync(long id);
 }
