@@ -1,4 +1,4 @@
-﻿export const getPageApi = async (pageNumber) => await fetch(`/api/document/page/${pageNumber}`, {
+﻿export const getDocumentListApi = async () => await fetch(`/api/document/all`, {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json'

@@ -8,13 +8,11 @@ namespace Heinekamp.Controllers;
 [Route("api/[controller]")]
 public class DocumentController(IDocumentService documentService) : Controller
 {
-    [Route("page/{pageIndex}")]
+    [Route("all")]
     [HttpGet]
-    public async Task<Page<Document>> GetPageOfDocuments(int pageIndex)
+    public async Task<List<Document>> ListAllDocuments()
     {
-        if (pageIndex < 0) throw new ArgumentException("Negative page number");
-        
-        return await documentService.GetPageOfDocuments(pageIndex);
+        return await documentService.ListAllDocuments();
     }
     
     [Route("fileTypes")]

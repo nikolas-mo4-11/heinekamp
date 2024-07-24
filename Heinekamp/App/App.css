@@ -1,5 +1,11 @@
-﻿.App {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-    padding: 20px;
+﻿.app {
+    background-color: #e4e7ff;
+    min-height: 1500px;
+
+    .wrapper{
+        background-color: aliceblue;
+        max-width: 1200px;
+        min-height: 1500px;
+        margin: 0 auto;
+    }
 }

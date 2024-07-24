@@ -1,12 +1,16 @@
 ﻿import React, {useEffect, useState} from 'react';
 import './UploadPopup.css';
 import {getFileTypesApi, postUploadDocsApi} from "../DocumentApi";
+import {Button, Image, Modal, Space, Table, Upload} from "antd";
+import Column from "antd/es/table/Column";
+import {UploadOutlined} from "@ant-design/icons";
 
-const UploadPopup = ({ onClose, onUpload, onPreviewClick, onErrors }) => {
-    const [files, setFiles] = useState([]);
-    const [fileTypes, setFileTypes] = useState([]);
+const UploadPopup = ({ onClose, onPreviewClick, onErrors, onUploadStart, onUploadFinish }) => {
     const typeIconDir = window.initialState.typeIconDir || '';
-
+    
+    const [fileTypes, setFileTypes] = useState([]);
+    const [files, setFiles] = useState([]);
+    
     useEffect(() => {
         fetchFileTypes();
     }, []);
@@ -21,33 +25,35 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick, onErrors }) => {
     };
 
     const handleFileSelect = (event) => {
-        setFiles([...files, ...event.target.files]);
+        setFiles([...event.fileList]);
     };
 
     const handleUpload = async () => {
         if (files.length === 0){
-            onUpload();
+            onErrors(['Nothing uploaded. The list was empty'])
+            onClose();
             return;
         }
         
         const formData = new FormData();
-        files.forEach(file => formData.append('files', file));
-        
+        files.forEach(file => formData.append('files', file.originFileObj));
+
+        onClose();
+        onUploadStart();
         await postUploadDocsApi(formData)
             .then(response => {
                 if (!response.ok) {
                     onErrors(['Network response was not ok']);
                 }
-                
-                onUpload();
             })
-            .catch(error => onErrors(error));
+            .then(_ => onUploadFinish())
+            .catch(error => onErrors([error]));
     };
     
     const getIconFileName = (extension) => {
         const matchedType = fileTypes.find(ft => ft.extension === extension);
         if (matchedType == null){
-            throw new Error('Can\'t handle file like this')
+            throw new Error(`Can't handle file of this type: ${extension}`)
         }
         return `${typeIconDir}/${matchedType.iconFileName}`;
     }
@@ -57,43 +63,48 @@ const UploadPopup = ({ onClose, onUpload, onPreviewClick, onErrors }) => {
     };
 
     return (
-        <div className="upload-popup">
-            <div className="upload-header">
-                <span>Upload Files</span>
-                <button onClick={onClose}>X</button>
-            </div>
-            <div className="upload-body">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Name</th>
-                        <th>Preview</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {files.map((file, index) => (
-                        <tr key={index}>
-                            <td>
-                                <img className='icon' src={getIconFileName(getFileExtension(file.name))}
-                                     alt="file type"/>
-                            </td>
-                            <td>
-                                <input type="text" defaultValue={file.name.replace(/\.[^/.]+$/, "")}/>
-                            </td>
-                            <td>
-                                <button>Preview</button>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-                <input type="file" multiple accept=".doc, .docx, .pdf, image/png, image/jpeg, image/jpg, .xls, .xlsx, .txt, .gif" onChange={handleFileSelect}/>
-            </div>
-            <div className="upload-footer">
-                <button onClick={handleUpload}>Upload</button>
-                <button onClick={onClose}>Cancel</button>
-            </div>
+        <div>
+            <Modal title="Upload files"
+                   open={true}
+                   onCancel={onClose}
+                   onOk={handleUpload}
+                   width={800}
+                   okText={'Upload'}>
+                <Table dataSource={files} pagination={null}>
+                    <Column
+                        key="icon"
+                        render={(_, record) => (
+                            <Space size="middle">
+                                <Image height={20} src={getIconFileName(getFileExtension(record.name))}/>
+                            </Space>
+                        )}
+                    />
+                    <Column
+                        title="Name"
+                        dataIndex="name"
+                        key="name"
+                    />
+                    <Column
+                        title="Actions"
+                        key="actions"
+                        render={(_, record) => (
+                            <Space size="middle">
+                                <Button onClick={() => onPreviewClick(record)}>Preview</Button>
+                            </Space>
+                        )}
+                    />
+                </Table>
+
+                <Upload
+                    name="file"
+                    onChange={handleFileSelect}
+                    marginTop={20}
+                    accept='.doc, .docx, .pdf, image/png, image/jpeg, image/jpg, .xls, .xlsx, .txt, .gif'
+                    multiple={true}
+                >
+                    <Button icon={<UploadOutlined/>}>Upload files</Button>
+                </Upload>
+            </Modal>
         </div>
     );
 };

@@ -5,7 +5,7 @@ namespace Heinekamp.PgDb.Repository.Interfaces;
 
 public interface IDocumentRepository
 {
-    Task<Page<Document>> GetPageOfDocuments(int currentPage, int pageSize);
+    Task<List<Document>> ListAllDocuments();
     Task<Document> Create(string name, FileType type);
     Task UpdateDocument(UpdateDocumentRequestDto request);
     Task Delete(long id);

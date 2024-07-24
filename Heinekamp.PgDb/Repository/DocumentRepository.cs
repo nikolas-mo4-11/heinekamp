@@ -10,26 +10,13 @@ namespace Heinekamp.PgDb.Repository;
 public class DocumentRepository(IDesignTimeDbContextFactory<PgContext> contextFactory)
     : RepositoryBase(contextFactory), IDocumentRepository
 {
-    public async Task<Page<Document>> GetPageOfDocuments(int currentPage, int pageSize)
+    public async Task<List<Document>> ListAllDocuments()
     {
-        var result = new Page<Document> { CurrentPage = currentPage, PageSize = pageSize };
-
-        --currentPage;
         await using var context = ContextFactory.CreateDbContext(null);
-        var query = context.Documents.AsQueryable();
-        
-        var docsCount = await query.CountAsync();
-        result.TotalPagesCount = docsCount / pageSize + (docsCount % pageSize == 0 ? 0 : 1);
-            
-        query = query
+        return await context.Documents.AsQueryable()
             .Include(d => d.FileType)
             .OrderByDescending(d => d.CreatedDate)
-            .Skip(currentPage * pageSize)
-            .Take(pageSize);
-            
-        result.Records = await query.ToListAsync();
-
-        return result;
+            .ToListAsync();
     }
 
     public async Task<Document> Create(string name, FileType type)

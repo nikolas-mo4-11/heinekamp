@@ -1,40 +1,10 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React from 'react';
 import './DocumentTable.css';
-import Pagination from "../Pagination/Pagination";
-import {getPageApi} from "../DocumentApi";
+import {Button, Space, Table} from 'antd';
+const { Column } = Table;
 
-const DocumentTable = ({ onPreviewClick, onErrors, onDownload }) => {
-    const [documents, setDocuments] = useState([]);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const documentStorageDir = window.initialState.documentStorageDir || '';
+const DocumentTable = ({ documents, setDocuments, onPreview, onDownload, onErrors }) => {
     const typeIconDir = window.initialState.typeIconDir || '';
-
-    useEffect( () => {
-        fetchDocuments();
-    }, [page]);
-
-    const fetchDocuments = () => {
-        getPageApi(page)
-            .then(response => response.json())
-            .then(response => {
-                setDocuments(response.records);
-                setTotalPages(response.totalPagesCount);
-            })
-            .catch(error => onErrors(error));
-    };
-
-    const handleDownload = (doc) => {
-        const ext = doc.fileType.extension;
-        const link = document.createElement('a');
-        link.href = `${documentStorageDir}/${doc.id}${ext}`;
-        link.download = `${doc.name}${ext}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        onDownload(doc);
-    };
 
     const getIconFileName = (name) => {
         return `${typeIconDir}/${name}`;
@@ -44,43 +14,57 @@ const DocumentTable = ({ onPreviewClick, onErrors, onDownload }) => {
         const date = new Date(createdDate);
         return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }
+    
+    /*var testDocs = [ {
+        fileType: { iconFileName: 'empty.svg'},
+        name: 'test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test ',
+        createdDate: new Date(),
+        downloadsCount: 12
+    }];*/
+
+    const paginationConfig = {
+        pageSize: 20
+    };
 
     return (
-        <div className="document-table">
-            <table>
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Created Date</th>
-                    <th>Downloads Count</th>
-                    <th>Download</th>
-                    <th>Preview</th>
-                </tr>
-                </thead>
-                <tbody>
-                {documents.map(doc => (
-                    <tr key={doc.id}>
-                        <td>
-                            <div>
-                                <img className='icon' src={getIconFileName(doc.fileType.iconFileName)} alt="file type"/>
-                                {doc.name}
-                            </div>
-
-                        </td>
-                        <td>{formatCreatedDate(doc.createdDate)}</td>
-                        <td>{doc.downloadsCount}</td>
-                        <td>
-                            <button onClick={() => handleDownload(doc)}>Download</button>
-                        </td>
-                        <td>
-                            <button onClick={() => onPreviewClick(doc)}>Preview</button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-        </div>
+        <Table dataSource={documents} pagination={paginationConfig}>
+            <Column
+                key="icon"
+                render={(_, record) => (
+                    <Space size="middle">
+                        <img className='icon' src={getIconFileName(record.fileType.iconFileName)} alt="file type"/>
+                    </Space>
+                    )}
+            />
+            <Column 
+                title="Name" 
+                dataIndex="name" 
+                key="name"
+            />
+            <Column 
+                title="Created Date"  
+                key="createdDate" 
+                render={(_, record) => (
+                    <Space size="middle">
+                        <div>{formatCreatedDate(record.createdDate)}</div>
+                    </Space>
+                )}
+            />
+            <Column title="Downloads Count" 
+                    dataIndex="downloadsCount" 
+                    key="downloadsCount"
+            />
+            <Column
+                title="Actions"
+                key="actions"
+                render={(_, record) => (
+                    <Space size="middle">
+                        <Button onClick={() => onDownload(record)}>Download</Button>
+                        <Button onClick={() => onPreview(record)}>Preview</Button>
+                    </Space>
+                )}
+            />
+        </Table>
     );
 };
 

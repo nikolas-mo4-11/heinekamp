@@ -5,7 +5,7 @@ namespace Heinekamp.Services.Interfaces;
 
 public interface IDocumentService
 {
-    Task<Page<Document>> GetPageOfDocuments(int pageIndex);
+    Task<List<Document>> ListAllDocuments();
     Task<IReadOnlyCollection<string>> CreateDocuments(IFormFileCollection files);
     Task<IReadOnlyCollection<FileType>> GetAvailableFileTypes();
     Task UpdateDocument(UpdateDocumentRequestDto request);

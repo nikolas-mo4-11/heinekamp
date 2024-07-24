@@ -1,14 +1,15 @@
 ﻿import React from 'react';
 import './Header.css';
+import { Button } from 'antd';
 
-const Header = ({ onUploadClick }) => {
+const Header = ({ onUpload }) => {
     return (
         <header className="header">
             <div className="header-logo">
-                <img src="./assets/drheinekamp_logo.svg" alt="Organization Logo" />
+                <img src="./assets/drheinekamp_logo.png" alt="Organization Logo" />
             </div>
             <div className="header-menu">
-                <button onClick={onUploadClick}>Upload</button>
+                <Button onClick={onUpload}>Upload</Button>
             </div>
         </header>
     );

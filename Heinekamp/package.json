@@ -11,6 +11,8 @@
   "author": "Nik",
   "license": "ISC",
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
+    "antd": "^5.19.3",
     "axios": "^1.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"

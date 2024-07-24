@@ -15,9 +15,9 @@ public class DocumentService(
     IFileTypeRepository fileTypeRepository
 ) : IDocumentService
 {
-    public Task<Page<Document>> GetPageOfDocuments(int pageIndex)
+    public async Task<List<Document>> ListAllDocuments()
     {
-        return documentRepository.GetPageOfDocuments(pageIndex, 5); //todo в конфиг
+        return await documentRepository.ListAllDocuments();
     }
 
     public async Task<IReadOnlyCollection<string>> CreateDocuments(IFormFileCollection files)
