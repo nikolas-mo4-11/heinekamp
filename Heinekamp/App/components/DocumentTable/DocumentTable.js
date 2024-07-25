@@ -3,9 +3,9 @@ import './DocumentTable.css';
 import {Button, Space, Table} from 'antd';
 const { Column } = Table;
 
-const DocumentTable = ({ documents, onPreview, onDownload, onErrors, onCreateLink }) => {
+const DocumentTable = ({ documents, onPreview, onDownload, onErrors, onCreateLink, selectedRowKeys, setSelectedRowKeys }) => {
     const typeIconDir = window.initialState.typeIconDir || '';
-
+    
     const getIconFileName = (name) => {
         return `${typeIconDir}/${name}`;
     }
@@ -14,10 +14,19 @@ const DocumentTable = ({ documents, onPreview, onDownload, onErrors, onCreateLin
         const date = new Date(createdDate);
         return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }
+
+    const onSelectChange = (newSelectedRowKeys) => {
+        setSelectedRowKeys(newSelectedRowKeys);
+    };
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: onSelectChange,
+    };
     
     /*var testDocs = [ {
         fileType: { iconFileName: 'empty.svg'},
-        name: 'test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test ',
+        name: 'test test test test test test test test test test test test',
         createdDate: new Date(),
         downloadsCount: 12
     }];*/
@@ -27,7 +36,7 @@ const DocumentTable = ({ documents, onPreview, onDownload, onErrors, onCreateLin
     };
 
     return (
-        <Table dataSource={documents} pagination={paginationConfig}>
+        <Table dataSource={documents} rowKey="id" pagination={paginationConfig} rowSelection={rowSelection}>
             <Column
                 key="icon"
                 render={(_, record) => (
@@ -38,8 +47,12 @@ const DocumentTable = ({ documents, onPreview, onDownload, onErrors, onCreateLin
             />
             <Column 
                 title="Name" 
-                dataIndex="name" 
                 key="name"
+                render={(_, record) => (
+                    <Space size="middle">
+                        {`${record.name}${record.fileType.extension}`}
+                    </Space>
+                )}
             />
             <Column 
                 title="Created Date"  

@@ -11,5 +11,7 @@ public interface IDocumentService
     Task UpdateDocumentAsync(UpdateDocumentRequestDto request);
     Task DeleteDocumentAsync(long id);
     Task<DownloadLink> CreateLinkAsync(long docId, DateTime expires);
-    Task<FileDownloadInfoDto?> GetFileDownloadInfoAsync(string guid);
+    Task<FileDownloadInfoDto?> GetFileDownloadInfoByLinkGuidAsync(string guid);
+    Task<FileDownloadInfoDto?> GetFileDownloadInfoByIdAsync(long id);
+    Task<FileDownloadInfoDto?> CreateDocsArchiveAndGetItsDownloadInfo(List<long> documentIds);
 }

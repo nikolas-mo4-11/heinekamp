@@ -10,18 +10,18 @@ public class DocumentController(IDocumentService documentService) : Controller
 {
     [Route("all")]
     [HttpGet]
-    public async Task<List<Document>> ListAllDocuments()// todo readonly
+    public async Task<List<Document>> ListAllDocuments() // todo readonly
     {
         return await documentService.ListAllDocumentsAsync();
     }
-    
+
     [Route("fileTypes")]
     [HttpGet]
     public async Task<IReadOnlyCollection<FileType>> GetFileTypes()
     {
         return await documentService.GetAvailableFileTypesAsync();
     }
-    
+
     [Route("create")]
     [HttpPost]
     public async Task<ActionResult> CreateDocuments()
@@ -31,9 +31,9 @@ public class DocumentController(IDocumentService documentService) : Controller
             return BadRequest("No files uploaded");
 
         var uploadedFileNames = await documentService.CreateDocumentsAsync(files);
-        return Ok(new {fileNames = uploadedFileNames });
+        return Ok(new {fileNames = uploadedFileNames});
     }
-    
+
     [Route("update")]
     [HttpPost]
     public async Task<ActionResult> UpdateDocument([FromBody] UpdateDocumentRequestDto request)
@@ -44,7 +44,7 @@ public class DocumentController(IDocumentService documentService) : Controller
         await documentService.UpdateDocumentAsync(request);
         return Ok();
     }
-    
+
     [Route("delete/{id}")]
     [HttpPost]
     public async Task<ActionResult> DeleteDocument(long id)
@@ -55,7 +55,7 @@ public class DocumentController(IDocumentService documentService) : Controller
         await documentService.DeleteDocumentAsync(id);
         return Ok();
     }
-    
+
     [Route("link/{docId}/expires/{expires}")]
     [HttpPost]
     public async Task<DownloadLink> CreateLink(long docId, DateTime expires)
@@ -67,16 +67,40 @@ public class DocumentController(IDocumentService documentService) : Controller
 
         return await documentService.CreateLinkAsync(docId, expires);
     }
-    
+
     [HttpGet("dld/{guid}")]
-    public async Task<IActionResult> DownloadFile(string guid)
+    public async Task<IActionResult> DownloadFileByGuid(string guid)
     {
-        var fileInfo = await documentService.GetFileDownloadInfoAsync(guid);
+        var fileInfo = await documentService.GetFileDownloadInfoByLinkGuidAsync(guid);
 
         if (fileInfo == null)
             return NotFound();
-        
-        return File(fileInfo.Bytes, fileInfo.MimeType, fileInfo.FileName); 
+
+        return File(fileInfo.Bytes, fileInfo.MimeType, fileInfo.FileName);
     }
-    
+
+    [HttpPost("download/{id}")]
+    public async Task<IActionResult> DownloadDocument(long id)
+    {
+        var fileInfo = await documentService.GetFileDownloadInfoByIdAsync(id);
+
+        if (fileInfo == null)
+            return NotFound();
+
+        return File(fileInfo.Bytes, fileInfo.MimeType, fileInfo.FileName);
+    }
+        
+    [Route("downloadMany")]
+    [HttpPost]
+    public async Task<ActionResult> DownloadManyDocuments([FromBody] List<long> documentIds)
+    {
+        if (documentIds.Count == 0)
+            return BadRequest("Documents list is empty");
+
+        var fileInfo = await documentService.CreateDocsArchiveAndGetItsDownloadInfo(documentIds);
+        if (fileInfo == null)
+            return NotFound();
+
+        return File(fileInfo.Bytes, fileInfo.MimeType, fileInfo.FileName);
+    }
 }

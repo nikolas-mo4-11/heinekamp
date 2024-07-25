@@ -4,7 +4,13 @@ import Header from "./components/Header/Header";
 import DocumentTable from "./components/DocumentTable/DocumentTable";
 import UploadPopup from "./components/UploadPopup/UploadPopup";
 import PreviewPopup from "./components/PreviewPopup/PreviewPopup";
-import {getDocumentListApi, postDeleteDocApi, postUpdateDocApi} from "./components/DocumentApi";
+import {
+    getDocumentListApi,
+    postDeleteDocApi,
+    postDownloadDocApi,
+    postDownloadManyDocsApi,
+    postUpdateDocApi
+} from "./components/DocumentApi";
 import Errors from "./components/Errors/Errors";
 import LinkPopup from "./components/LinkPopup/LinkPopup";
 
@@ -12,6 +18,7 @@ const App = () => {
     const documentStorageDir = window.initialState.documentStorageDir || '';
 
     const [documents, setDocuments] = useState([]);
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
     const [errors, setErrors] = useState([]);
     const [currentPreviewDoc, setCurrentPreviewDoc] = useState(null);
@@ -100,25 +107,47 @@ const App = () => {
     };
 
     const downloadDocument = (doc) => {
-        try{
-            const ext = doc.fileType.extension;
-            const link = document.createElement('a');
-            link.href = `${documentStorageDir}/${doc.id}${ext}`;
-            link.download = `${doc.name}${ext}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        catch (error){
-            onErrors([error.message])
-        }
-        
-        updateDoc({
-            id: doc.id,
-            name: doc.name,
-            downloadsCount: doc.downloadsCount + 1
-        });
+        postDownloadDocApi(doc.id)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => handleDownloadFile(blob, doc.name, doc.fileType.extension))
+            .then(_ => reloadDocsList())
+            .catch(error => onErrors([error]));
     };
+    
+    const downloadMany = () => {
+        if (selectedRowKeys.length === 0){
+            onErrors(['No files selected to download']);
+            return;
+        }
+
+        postDownloadManyDocsApi(selectedRowKeys)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => handleDownloadFile(blob, 'files', '.zip'))
+            .then(_ => setSelectedRowKeys([]))
+            .then(_ => reloadDocsList())
+            .catch(error => onErrors([error]));
+    }
+    
+    const handleDownloadFile = (blob, name, extension) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${name}${extension}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
 
     return (
         <div className="app">
@@ -138,6 +167,8 @@ const App = () => {
             <div className='wrapper' style={isFetching ? {pointerEvents: "none", opacity: "0.4"} : {}}>
                 <Header
                     onUpload={showUploadPopup}
+                    selectedRowKeys={selectedRowKeys}
+                    onDownloadMany={downloadMany}
                 />
                 {errors.length > 0 &&
                     <Errors
@@ -150,6 +181,8 @@ const App = () => {
                     onDownload={downloadDocument}
                     onErrors={onErrors}
                     onCreateLink={showCreateLinkPopup}
+                    selectedRowKeys={selectedRowKeys}
+                    setSelectedRowKeys={setSelectedRowKeys}
                 />
 
                 {isPreviewPopupOpen &&

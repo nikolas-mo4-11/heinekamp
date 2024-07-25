@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import './LinkPopup.css';
 import {Button, Col, Modal, Row, Image, Input, Select} from 'antd';
-import {postCreateLink} from "../DocumentApi";
+import {postCreateLinkApi} from "../DocumentApi";
 
 const LinkPopup = ({ document, onClose, onErrors }) => {
     const typeIconDir = window.initialState.typeIconDir || '';
@@ -17,7 +17,7 @@ const LinkPopup = ({ document, onClose, onErrors }) => {
             onErrors(['Period is not set']);
         }
 
-        postCreateLink(document.id, expires.toISOString())
+        postCreateLinkApi(document.id, expires.toISOString())
             .then(response => response.json())
             .then(response =>{
                 setLink(response.link);

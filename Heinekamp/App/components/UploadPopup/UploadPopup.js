@@ -5,7 +5,7 @@ import {Button, Image, Modal, Space, Table, Upload} from "antd";
 import Column from "antd/es/table/Column";
 import {UploadOutlined} from "@ant-design/icons";
 
-const UploadPopup = ({ onClose, onPreviewClick, onErrors, onUploadStart, onUploadFinish }) => {
+const UploadPopup = ({ onClose, onErrors, onUploadStart, onUploadFinish }) => {
     const typeIconDir = window.initialState.typeIconDir || '';
     
     const [fileTypes, setFileTypes] = useState([]);
@@ -83,15 +83,6 @@ const UploadPopup = ({ onClose, onPreviewClick, onErrors, onUploadStart, onUploa
                         title="Name"
                         dataIndex="name"
                         key="name"
-                    />
-                    <Column
-                        title="Actions"
-                        key="actions"
-                        render={(_, record) => (
-                            <Space size="middle">
-                                <Button onClick={() => onPreviewClick(record)}>Preview</Button>
-                            </Space>
-                        )}
                     />
                 </Table>
 

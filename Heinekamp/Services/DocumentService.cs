@@ -1,4 +1,6 @@
-﻿using Heinekamp.Domain.AppSettings;
+﻿using System.Collections.Concurrent;
+using System.IO.Compression;
+using Heinekamp.Domain.AppSettings;
 using Heinekamp.Domain.Models;
 using Heinekamp.Dtos;
 using Heinekamp.PgDb.Repository.Interfaces;
@@ -36,7 +38,7 @@ public class DocumentService(
         var documentEntity = await documentRepository.CreateAsync(Path.GetFileNameWithoutExtension(fileName), fileType);
 
         // upload to storage
-        var filePath = GetFilePathByDocumentId(documentEntity.Id, fileType.Extension);
+        var filePath = GetFilePathByDocumentIdAndExt(documentEntity.Id, fileType.Extension);
             
         await using (var stream = new FileStream(filePath, FileMode.Create))
             await file.CopyToAsync(stream);
@@ -66,7 +68,7 @@ public class DocumentService(
         await documentRepository.DeleteAsync(id);
 
         // delete from storage
-        var filePath = GetFilePathByDocumentId(id, extension);
+        var filePath = GetFilePathByDocumentIdAndExt(id, extension);
 
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"file {filePath} not found"); 
@@ -79,7 +81,7 @@ public class DocumentService(
         return await downloadLinkRepository.CreateAsync(docId, expires, GetLinkByGuid(Guid.NewGuid().ToString()));
     }
 
-    public async Task<FileDownloadInfoDto?> GetFileDownloadInfoAsync(string guid)
+    public async Task<FileDownloadInfoDto?> GetFileDownloadInfoByLinkGuidAsync(string guid)
     {
         var link = await downloadLinkRepository.GetByLinkAsync(GetLinkByGuid(guid));
 
@@ -87,7 +89,7 @@ public class DocumentService(
             return null;
         
         var extension = link.Document.FileType.Extension;
-        var filePath = GetFilePathByDocumentId(link.DocumentId, extension);
+        var filePath = GetFilePathByDocumentIdAndExt(link.DocumentId, extension);
 
         if (!File.Exists(filePath))
             throw new FileNotFoundException("File not found");
@@ -98,7 +100,90 @@ public class DocumentService(
             Bytes = await File.ReadAllBytesAsync(filePath),
             MimeType = GetMimeType(extension)
         };
-    }//http://localhost:44320/api/document/dld/37870fdc-e752-4207-b0c5-c4cfa40ce326
+    }
+
+    public async Task<FileDownloadInfoDto?> GetFileDownloadInfoByIdAsync(long id)
+    {
+        var document = await documentRepository.GetByIdAsync(id);
+        
+        var extension = document.FileType.Extension;
+        var filePath = GetFilePathByDocumentIdAndExt(id, extension);
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException("File not found");
+
+        await documentRepository.UpdateDocumentAsync(new UpdateDocumentRequestDto
+        {
+            Id = document.Id,
+            Name = document.Name,
+            DownloadsCount = document.DownloadsCount + 1
+        });
+        
+        return new FileDownloadInfoDto
+        {
+            FileName = $"{document.Name}{extension}",
+            Bytes = await File.ReadAllBytesAsync(filePath),
+            MimeType = GetMimeType(extension)
+        };
+    }
+
+    public async Task<FileDownloadInfoDto?> CreateDocsArchiveAndGetItsDownloadInfo(List<long> documentIds)
+    {
+        var zipFilePath = GetFilePathByDocumentIdAndExt(-1, ".zip");
+        var fileDataList = new ConcurrentBag<(string fileName, byte[] data)>();
+
+        var tasks = documentIds.Select(async id =>
+        {
+            var document = await documentRepository.GetByIdAsync(id);
+            var filePath = GetFilePathByDocumentIdAndExt(id, document.FileType.Extension);
+            
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("File not found");
+
+            await documentRepository.UpdateDocumentAsync(new UpdateDocumentRequestDto
+            {
+                Id = document.Id,
+                Name = document.Name,
+                DownloadsCount = document.DownloadsCount + 1
+            });
+            
+            var data = await File.ReadAllBytesAsync(filePath);
+            fileDataList.Add(($"{document.Name}{document.FileType.Extension}", data));
+        });
+        await Task.WhenAll(tasks);
+
+        using (var zipArchive = ZipFile.Open(zipFilePath, ZipArchiveMode.Create))
+        {
+            foreach (var fileData in fileDataList)
+            {
+                var entry = zipArchive.CreateEntry(fileData.fileName);
+
+                using (var entryStream = entry.Open())
+                using (var memoryStream = new MemoryStream(fileData.data))
+                {
+                    await memoryStream.CopyToAsync(entryStream);
+                }
+            }
+        }
+
+        var memory = new MemoryStream();
+        await using (var stream = new FileStream(zipFilePath, FileMode.Open))
+        {
+            await stream.CopyToAsync(memory);
+        }
+        memory.Position = 0;
+
+        File.Delete(zipFilePath);
+
+        return new FileDownloadInfoDto
+        {
+            Bytes = memory.ToArray(),
+            MimeType = "application/zip",
+            FileName = "files.zip"
+        };
+    }
+
+    
 
     private string GetLinkByGuid(string guid) =>
         $"{appSettings.Value.Domain}/api/document/dld/{guid}";
@@ -120,7 +205,7 @@ public class DocumentService(
         };
     }
 
-    private string GetFilePathByDocumentId(long id, string extension) =>
+    private string GetFilePathByDocumentIdAndExt(long id, string extension) =>
         Path.Combine(env.WebRootPath, appSettings.Value.DocumentStorageDir[2..], $"{id.ToString()}{extension}");
     
     private string GetPreviewPathByDocumentId(long id) =>

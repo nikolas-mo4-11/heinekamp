@@ -32,9 +32,24 @@ export const postDeleteDocApi = async (id) => await fetch(`/api/document/delete/
     }
 });
 
-export const postCreateLink = async (docId, expires) => await fetch(`/api/document/link/${docId}/expires/${expires}`, {
+export const postCreateLinkApi = async (docId, expires) => await fetch(`/api/document/link/${docId}/expires/${expires}`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
     }
+});
+
+export const postDownloadDocApi = async (id) => await fetch(`/api/document/download/${id}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+export const postDownloadManyDocsApi = async (docs) => await fetch(`/api/document/downloadMany`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(docs)
 });
