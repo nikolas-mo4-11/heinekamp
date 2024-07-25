@@ -1,4 +1,4 @@
-﻿using Heinekamp.Domain.AppConfig;
+﻿using Heinekamp.Domain.AppSettings;
 using Heinekamp.Domain.Models;
 using Heinekamp.Dtos;
 using Heinekamp.PgDb.Repository.Interfaces;
@@ -12,7 +12,8 @@ public class DocumentService(
     IWebHostEnvironment env,
     IOptions<AppSettings> appSettings,
     IDocumentRepository documentRepository,
-    IFileTypeRepository fileTypeRepository
+    IFileTypeRepository fileTypeRepository,
+    IDownloadLinkRepository downloadLinkRepository
 ) : IDocumentService
 {
     public async Task<List<Document>> ListAllDocumentsAsync()
@@ -71,6 +72,52 @@ public class DocumentService(
             throw new FileNotFoundException($"file {filePath} not found"); 
         
         File.Delete(filePath);
+    }
+
+    public async Task<DownloadLink> CreateLinkAsync(long docId, DateTime expires)
+    {
+        return await downloadLinkRepository.CreateAsync(docId, expires, GetLinkByGuid(Guid.NewGuid().ToString()));
+    }
+
+    public async Task<FileDownloadInfoDto?> GetFileDownloadInfoAsync(string guid)
+    {
+        var link = await downloadLinkRepository.GetByLinkAsync(GetLinkByGuid(guid));
+
+        if (link.ExpirationDate.ToUniversalTime() < DateTime.UtcNow)
+            return null;
+        
+        var extension = link.Document.FileType.Extension;
+        var filePath = GetFilePathByDocumentId(link.DocumentId, extension);
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException("File not found");
+        
+        return new FileDownloadInfoDto
+        {
+            FileName = $"{link.Document.Name}{extension}",
+            Bytes = await File.ReadAllBytesAsync(filePath),
+            MimeType = GetMimeType(extension)
+        };
+    }//http://localhost:44320/api/document/dld/37870fdc-e752-4207-b0c5-c4cfa40ce326
+
+    private string GetLinkByGuid(string guid) =>
+        $"{appSettings.Value.Domain}/api/document/dld/{guid}";
+    
+    private static string GetMimeType(string fileExtension)
+    {
+        return fileExtension.ToLower() switch
+        {
+            ".pdf" => "application/pdf",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".txt" => "text/plain",
+            ".xls" => "application/vnd.ms-excel",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            _ => "application/octet-stream"
+        };
     }
 
     private string GetFilePathByDocumentId(long id, string extension) =>

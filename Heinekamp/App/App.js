@@ -6,7 +6,7 @@ import UploadPopup from "./components/UploadPopup/UploadPopup";
 import PreviewPopup from "./components/PreviewPopup/PreviewPopup";
 import {getDocumentListApi, postDeleteDocApi, postUpdateDocApi} from "./components/DocumentApi";
 import Errors from "./components/Errors/Errors";
-import {Image} from "antd";
+import LinkPopup from "./components/LinkPopup/LinkPopup";
 
 const App = () => {
     const documentStorageDir = window.initialState.documentStorageDir || '';
@@ -17,10 +17,12 @@ const App = () => {
     const [currentPreviewDoc, setCurrentPreviewDoc] = useState(null);
     const [isPreviewPopupOpen, setIsPreviewPopupOpen] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
+    const [isCreateLinkPopupOpen, setIsCreateLinkPopupOpen] = useState(false);
+    const [currentLinkCreationDoc, setCurrentLinkCreationDoc] = useState(null);
 
     const onErrors = (errorsArr) => {
         setErrors(errorsArr);
-    }
+    };
 
     useEffect( () => {
         fetchDocuments();
@@ -39,7 +41,7 @@ const App = () => {
     
     const reloadDocsList = () => {
         fetchDocuments();
-    }
+    };
     
     const showPreviewPopup = (docToPreview) => {
         setIsPreviewPopupOpen(true);
@@ -50,22 +52,29 @@ const App = () => {
         setCurrentPreviewDoc(null);
         setIsPreviewPopupOpen(false);
         reloadDocsList();
-    }
+    };
 
     const showUploadPopup = () => setIsUploadPopupOpen(true);
     const closeUploadPopup = () => setIsUploadPopupOpen(false);
-        
+
+    const showCreateLinkPopup = (doc) => {
+        setIsCreateLinkPopupOpen(true);
+        setCurrentLinkCreationDoc(doc);
+    } ;
+    const closeCreateLinkPopup = () => {
+        setIsCreateLinkPopupOpen(false);
+        setCurrentLinkCreationDoc(null);
+    };
         
     
-
     const onUploadStart = () => {
         setIsFetching(true);
-    }
+    };
 
     const onUploadFinish = () => {
         setIsFetching(false);
         reloadDocsList();
-    }
+    };
 
     const updateDoc = (doc) => {
         postUpdateDocApi(doc)
@@ -114,7 +123,7 @@ const App = () => {
     return (
         <div className="app">
             {isFetching && <div style={{
-                width: 30,
+                width: 10,
                 position: 'fixed',
                 top: '50%',
                 left: '50%',
@@ -137,10 +146,10 @@ const App = () => {
 
                 <DocumentTable
                     documents={documents}
-                    setDocuments={setDocuments}
                     onPreview={showPreviewPopup}
                     onDownload={downloadDocument}
                     onErrors={onErrors}
+                    onCreateLink={showCreateLinkPopup}
                 />
 
                 {isPreviewPopupOpen &&
@@ -158,6 +167,13 @@ const App = () => {
                         onErrors={onErrors}
                         onUploadStart={onUploadStart}
                         onUploadFinish={onUploadFinish}
+                    />}
+
+                {isCreateLinkPopupOpen &&
+                    <LinkPopup
+                        document={currentLinkCreationDoc}
+                        onErrors={onErrors}
+                        onClose={closeCreateLinkPopup}
                     />}
             </div>
 

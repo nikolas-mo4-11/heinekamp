@@ -52,12 +52,12 @@ const PreviewPopup = ({ document, onClose, onDeleteDoc, onUpdateDoc }) => {
                 <Row>
                     <Col span={24}>
                         
-                        <div style={{fontSize: 14}}>
+                        <div>
                             {isInEditMode
                                 ? (<Input
                                     value={newName}
                                     onChange={(e) => setNewName(e.target.value)}/>)
-                                : <div>{document.name}</div>
+                                : <div className='title'>{document.name}</div>
                             }
                         </div>
                     </Col>
@@ -75,7 +75,7 @@ const PreviewPopup = ({ document, onClose, onDeleteDoc, onUpdateDoc }) => {
                         <Card>
                             <Meta
                                 title="Downloads"
-                                description={document.downloadsCount}
+                                description={document.downloadsCount.toString()}
                             />
                         </Card>
                     </Col>

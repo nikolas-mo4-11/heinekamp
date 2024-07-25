@@ -1,4 +1,4 @@
-﻿using Heinekamp.Domain.AppConfig;
+﻿using Heinekamp.Domain.AppSettings;
 using Heinekamp.PgDb.Context;
 using Heinekamp.PgDb.Repository;
 using Heinekamp.PgDb.Repository.Interfaces;
@@ -77,6 +77,7 @@ public class Startup(IConfiguration configuration)
         
         services.AddSingleton<IDocumentRepository, DocumentRepository>();
         services.AddSingleton<IFileTypeRepository, FileTypeRepository>();
+        services.AddSingleton<IDownloadLinkRepository, DownloadLinkRepository>();
     }
 
     private void ConfigureAppServices(IServiceCollection services)

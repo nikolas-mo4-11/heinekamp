@@ -1,4 +1,4 @@
-﻿using Heinekamp.Domain.AppConfig;
+﻿using Heinekamp.Domain.AppSettings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 

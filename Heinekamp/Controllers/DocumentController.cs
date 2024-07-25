@@ -10,7 +10,7 @@ public class DocumentController(IDocumentService documentService) : Controller
 {
     [Route("all")]
     [HttpGet]
-    public async Task<List<Document>> ListAllDocuments()
+    public async Task<List<Document>> ListAllDocuments()// todo readonly
     {
         return await documentService.ListAllDocumentsAsync();
     }
@@ -55,4 +55,28 @@ public class DocumentController(IDocumentService documentService) : Controller
         await documentService.DeleteDocumentAsync(id);
         return Ok();
     }
+    
+    [Route("link/{docId}/expires/{expires}")]
+    [HttpPost]
+    public async Task<DownloadLink> CreateLink(long docId, DateTime expires)
+    {
+        if (docId <= 0)
+            throw new ArgumentException("Document id is zero or negative");
+        if (expires < DateTime.UtcNow)
+            throw new ArgumentException("Expiration date is incorrect");
+
+        return await documentService.CreateLinkAsync(docId, expires);
+    }
+    
+    [HttpGet("dld/{guid}")]
+    public async Task<IActionResult> DownloadFile(string guid)
+    {
+        var fileInfo = await documentService.GetFileDownloadInfoAsync(guid);
+
+        if (fileInfo == null)
+            return NotFound();
+        
+        return File(fileInfo.Bytes, fileInfo.MimeType, fileInfo.FileName); 
+    }
+    
 }

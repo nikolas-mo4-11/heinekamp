@@ -10,4 +10,6 @@ public interface IDocumentService
     Task<IReadOnlyCollection<FileType>> GetAvailableFileTypesAsync();
     Task UpdateDocumentAsync(UpdateDocumentRequestDto request);
     Task DeleteDocumentAsync(long id);
+    Task<DownloadLink> CreateLinkAsync(long docId, DateTime expires);
+    Task<FileDownloadInfoDto?> GetFileDownloadInfoAsync(string guid);
 }

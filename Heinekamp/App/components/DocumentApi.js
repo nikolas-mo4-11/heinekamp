@@ -31,3 +31,10 @@ export const postDeleteDocApi = async (id) => await fetch(`/api/document/delete/
         'Content-Type': 'application/json'
     }
 });
+
+export const postCreateLink = async (docId, expires) => await fetch(`/api/document/link/${docId}/expires/${expires}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});

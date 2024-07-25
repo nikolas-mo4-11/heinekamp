@@ -3,7 +3,7 @@ import './DocumentTable.css';
 import {Button, Space, Table} from 'antd';
 const { Column } = Table;
 
-const DocumentTable = ({ documents, setDocuments, onPreview, onDownload, onErrors }) => {
+const DocumentTable = ({ documents, onPreview, onDownload, onErrors, onCreateLink }) => {
     const typeIconDir = window.initialState.typeIconDir || '';
 
     const getIconFileName = (name) => {
@@ -61,6 +61,7 @@ const DocumentTable = ({ documents, setDocuments, onPreview, onDownload, onError
                     <Space size="middle">
                         <Button onClick={() => onDownload(record)}>Download</Button>
                         <Button onClick={() => onPreview(record)}>Preview</Button>
+                        <Button onClick={() => onCreateLink(record)}>Create download link</Button>
                     </Space>
                 )}
             />
