@@ -14,13 +14,6 @@ public class PgContext : DbContext
     public DbSet<FileType> FileTypes { get; set; }
     public DbSet<DownloadLink> DownloadLinks { get; set; }
     
-    /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) //todo
-    {
-
-        optionsBuilder.UseNpgsql("Server=localhost;Database=heinekamp;User Id=postgres;Password=qwerty");
-
-    }*/
-    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

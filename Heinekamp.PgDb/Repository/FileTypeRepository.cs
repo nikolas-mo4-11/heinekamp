@@ -20,8 +20,6 @@ public class FileTypeRepository(IDesignTimeDbContextFactory<PgContext> contextFa
     public async Task<IReadOnlyCollection<FileType>> GetAvailableFileTypes()
     {
         await using var context = ContextFactory.CreateDbContext(null);
-
-        var temp = await context.FileTypes.AsQueryable().ToListAsync();
-        return temp; //todo
+        return await context.FileTypes.AsQueryable().ToListAsync();
     }
 }

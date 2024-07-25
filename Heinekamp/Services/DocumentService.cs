@@ -42,11 +42,9 @@ public class DocumentService(
             
         await using (var stream = new FileStream(filePath, FileMode.Create))
             await file.CopyToAsync(stream);
-            
-        // create preview image
-        var temp = GetPreviewPathByDocumentId(documentEntity.Id); //todo
-        var temp1 = PreviewGeneratorResolver.GetGenerator(fileType.Extension);
-        temp1.CreatePreview(filePath, GetPreviewPathByDocumentId(documentEntity.Id));
+        
+        PreviewGeneratorResolver.GetGenerator(fileType.Extension)
+            .CreatePreview(filePath, GetPreviewPathByDocumentId(documentEntity.Id));
 
         return file.FileName;
     }

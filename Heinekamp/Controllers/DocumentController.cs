@@ -10,7 +10,7 @@ public class DocumentController(IDocumentService documentService) : Controller
 {
     [Route("all")]
     [HttpGet]
-    public async Task<List<Document>> ListAllDocuments() // todo readonly
+    public async Task<IReadOnlyCollection<Document>> ListAllDocuments()
     {
         return await documentService.ListAllDocumentsAsync();
     }
