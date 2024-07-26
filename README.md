@@ -43,6 +43,68 @@ The app is coded with C# and .NET tools for the backend, Entity Framework Core w
 
    After completing the above steps, build and run the solution using your development environment.
 
+## Main architecture and design decisions
+
+The best documentation for the code is the code, but I'll write about some key points:
+
+1. **Frontend**
+
+index.js is the root file of the frontend part. It contains the App component that includes all the frontend logic. I tried to use maximum of react features to make the page react dynamically on user's actions without reloading the page. Also, I used Ant library of React components to make the UI look better (it's license free).
+
+2. **Static resources**
+
+Static resources are stored at wwwroot folder.
+
+3. **Startup**
+
+The Startup.cs file is the root file of backend (except Program.cs where the app starts running), where all the necessary modules, migrations and dependencies are described. I used internal System DI tools for Dependency Injection.
+
+4. **Entity framework core**
+
+I used EF core with Postgree SQL for data storage. Heinekzmp.PgDb assembly contains all the stuff connected with DB, such as DbContext and its Factory, repositories classes, and the folder Migrations with all the information about migrations (that are being applied during the startup)
+
+5. **API**
+
+Frontend and backend are connected by API. The endpoints are in the files DocumentApi.js and DocumentController.cs
+
+6. **Backend structure**
+   
+Basically, the backend has 3 layers: Controllers layer (API description), Service layer (all the business logic), and Repository layer containing the operations with Database
+
+7. **Asynchronously**
+
+Almost all the operations need to read/write data from/to DB, some of them need a lot of resources to be finished as well (previews creation, for example). This brings me to the decision to make all the code async, and also run number of tasks at the same time sometimes (for document creation and downloading). Most of the asynchronous logic on the backend you can see in DocumentService.cs. On the frontend I used Promises to support asynchronous methods (with .then.catch construction)
+
+8. **Preview creation**
+
+This is the most difficult operation on the backend, it needs a lot of resources, and thanks to a huge number of extensions to support, it also needed a good architecture decision. I have a Generator for each format to create the preview picture for the file and to save it to the server memory. PreviewGeneratorResolver class resolves which Generator we need for each concrete file, then method CreatePreview of the Generator is called. All the Generators implement the IPreviewGenerator interface.
+
+## Interface description
+
+**Main page**
+The interface is simple: on the main page there is the table with Documents' names, creation dates, download counts and actions. The table has a pagination.
+
+Action buttons:
+1. Download button - download the document
+2. Preview button - open the preview popup
+3. Create document link button - open the link creatin popup
+
+There are also 2 buttons in the header
+1. Upload - open the upload documents popup
+2. Download selected [visible only when there are selected documents] - downloads an archive with selected documents
+
+**Preview popup**
+Contains information about the document - name, creation date, downloads count and preview image
+On the bottom there are 3 buttons: close (to close popup), delete (to delete the doc), edit. Edit button activate 'Edit mode' where instead of the name of the doc we see input window, so we can change the name. After that we can push the Save button to save changes.
+
+**Create download link popup**
+We can create a temporary link here. Enter the amount and select the unit to set the availability period (you'll see the expiration time below). Then push the Create link button, the link will be shown below. Copy it and use! If the link is expired - you'll see 404 error while trying to download the document.
+
+**Upload files popup**
+Push Upload files, select needed docs. Then you'll see a table with docs' information. Push the Upload button to upload documents to the system.
+
+
+
 
 ## Never Perfect: What to Do Next
 
