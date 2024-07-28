@@ -116,3 +116,4 @@ Push Upload files, select needed docs. Then you'll see a table with docs' inform
 
 4. **Localization**: Currently, all interface strings are hard-coded. Implement a localization dictionary to make the code cleaner and more extensible. This will facilitate the addition of new languages and translations without having to screen all `.js` files.
 
+5. **Optimaze DB**: Short up the number of operations by creating more specific repository methods or SQL-functions
